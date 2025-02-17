@@ -1,12 +1,16 @@
 import numpy as np
 from sklearn.metrics import matthews_corrcoef
 
+
+# sign function to create binary activation vector
 def binary_sign(vector):
     vector = np.array(vector, dtype=np.float64)
     vector[vector > 0] = 1
     vector[vector < 0] = -1
     vector[vector == 0] = np.random.choice([-1, 1]) # 50-50 chance for a 0 to be -1 or +1 
     return vector
+
+# define Hopfield network class
 
 class HopfieldNetwork:
     def __init__(self, N): # specify the size of the network to be created
@@ -18,8 +22,7 @@ class HopfieldNetwork:
         self.W = np.zeros((N, N)) # intial zero weights
         self.W = np.array(self.W, dtype=np.float64)
 
-
-
+    # method for getting network activation after exposed to a pattern
     def stabilizing_activity(self, start, cycles=40, E=0.15, D=0.15,output=True):
         start = np.array(start, dtype=np.float64)
         for _ in range(cycles):
@@ -37,9 +40,7 @@ class HopfieldNetwork:
         self.current_activity = stable_output_activation
         if output: return self.current_activity
 
-
-
-
+    # method for updating weight matrix according to Hebbian learning rule
     def update_weight_matrix(self, activity_vector):
         activity_vector = np.array(activity_vector, dtype=np.float64)
         change_weight_matrix = self.eta * np.outer(activity_vector, activity_vector) # simple Hebbian learning rule
@@ -48,7 +49,7 @@ class HopfieldNetwork:
         max_weight = np.max(np.abs(self.W))
         if max_weight > 0:  # Avoid division by zero
             self.W /= max_weight
-
+        # a check for values
         if np.any(np.isnan(updated_W)) or np.any(np.isinf(updated_W)):
             print("Warning: NaN or Inf values detected in updated_W")
         self.W = updated_W
